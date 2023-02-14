@@ -1,9 +1,14 @@
+require('dotenv').config()
 const express = require('express')
-const app = express()
 const cors = require('cors')
+const mongoose = require('mongoose')
+const app = express()
+const Note = require('./models/note')
 
-app.use(express.static('dist'))
+mongoose.set('strictQuery', false)
+
 app.use(cors())
+app.use(express.static('dist'))
 
 const requestLogger = (request, response, next) => {
     console.log('Method:', request.method)
@@ -44,7 +49,9 @@ app.get('/', (request, response) => {
 })
  
 app.get('/api/notes', (request, response) => {
-    response.json(notes)
+    Note.find({}).then(notes => {
+        response.json(notes)
+    })
 })
 
 app.post('/api/notes', (request, response) => {
@@ -95,7 +102,7 @@ app.delete('/api/notes/:id', (request, response) => {
 
 app.use(unknownEndpoint)
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
 })
